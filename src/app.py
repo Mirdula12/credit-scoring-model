@@ -1,53 +1,3 @@
-# import streamlit as st
-# import pandas as pd
-# import pickle
-
-# # Load trained model
-# model = pickle.load(open("../models/credit_scoring_model.pkl", "rb"))
-
-# st.set_page_config(page_title="Credit Scoring App")
-
-# st.title("Credit Scoring Model")
-
-# st.write("Predict whether a customer is a good or bad credit risk.")
-
-# st.sidebar.header("Applicant Details")
-
-# # User Inputs
-# age = st.sidebar.slider("Age", 18, 100, 30)
-
-# credit_amount = st.sidebar.number_input("Credit Amount", 0, 50000, 5000)
-
-# duration = st.sidebar.slider("Loan Duration (Months)", 1, 72, 12)
-
-# # Dummy dataframe matching training structure
-# input_data = pd.DataFrame({
-#     "Age": [age],
-#     "Credit amount": [credit_amount],
-#     "Duration": [duration]
-# })
-
-# # Add missing columns
-# training_columns = model.feature_names_in_
-
-# for col in training_columns:
-#     if col not in input_data.columns:
-#         input_data[col] = 0
-
-# input_data = input_data[training_columns]
-
-# # Prediction
-# if st.button("Predict Credit Risk"):
-
-#     prediction = model.predict(input_data)[0]
-
-#     if prediction == 1:
-#         st.success("Good Credit Risk")
-#     else:
-#         st.error("Bad Credit Risk")
-
-
-
 import streamlit as st
 import pandas as pd
 import pickle
@@ -126,25 +76,49 @@ if st.button("Predict Credit Risk"):
 
     probability = model.predict_proba(input_data)[0][1]
 
+    # Prediction Result
     if prediction == 1:
         result = "Good Credit Risk"
-        st.success(
-            f"{result} - Confidence: {probability:.2%}"
-        )
+
+        st.success(result)
 
     else:
-        result = "Bad Credit Risk"
-        # st.error(
-        #     f"{result} - Confidence: {(1 - probability):.2%}"
-        # )
+        result = " Bad Credit Risk"
 
-    # Save History
-    st.session_state.history.append({
-        "Age": age,
-        "Credit Amount": credit_amount,
-        "Duration": duration,
-        "Prediction": result
-    })
+        st.error(result)
+
+    # Check Duplicate Entry
+    duplicate_found = False
+
+    for item in st.session_state.history:
+
+        if (
+            item["Age"] == age and
+            item["Credit Amount"] == credit_amount and
+            item["Duration"] == duration
+        ):
+
+            duplicate_found = True
+            break
+
+    # If Duplicate
+    if duplicate_found:
+
+        st.warning(
+            "⚠️ Entered already in history"
+        )
+
+    # Save New Entry
+    else:
+
+        st.session_state.history.append({
+            "Age": age,
+            "Credit Amount": credit_amount,
+            "Duration": duration,
+            "Prediction": result
+        })
+
+        st.success("Added to history")
 
 # Show History
 if st.session_state.history:
@@ -193,7 +167,9 @@ if st.button("Clear Entire History"):
 
     st.rerun()
 
+# Footer
+st.markdown("---")
 
-
-    # cd src
-    # py -m streamlit run app.py
+st.caption(
+    "Developed using Streamlit & Machine Learning"
+)
