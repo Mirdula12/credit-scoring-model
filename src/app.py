@@ -192,3 +192,8 @@ if st.button("Clear Entire History"):
     st.session_state.history = []
 
     st.rerun()
+
+
+
+    # cd src
+    # py -m streamlit run app.py
